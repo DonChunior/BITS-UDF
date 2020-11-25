@@ -9,7 +9,44 @@
 ; Background Intelligent Transfer Control Class 10.3
 Local Const $sCLSID_BackgroundCopyManager = "{5FD42AD5-C04E-4D36-ADC7-E08FF15737AD}"
 Local Const $sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
-Local Const $sTagIBackgroundCopyManager = "CreateJob hresult(wstr;int;clsid*;object*); EnumJobs hresult(dword;ptr*); GetErrorDescription hresult(hresult;dword;wstr*); GetJob hresult(clsid;ptr*)"
+Local Const $sTagIBackgroundCopyManager = "CreateJob hresult(wstr;int;clsid*;ptr*);" & _
+		"EnumJobs hresult(dword;ptr*);" & _
+		"GetErrorDescription hresult(hresult;dword;wstr*);" & _
+		"GetJob hresult(clsid;ptr*);"
+
+Local Const $sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
+Local Const $sTagIBackgroundCopyJob = "AddFile hresult(wstr;wstr);" & _
+		"AddFileSet hresult(ulong;struct*);" & _
+		"Cancel hresult();" & _
+		"Complete hresult();" & _
+		"EnumFiles hresult(ptr*);" & _
+		"GetDescription hresult(wstr*);" & _
+		"GetDisplayName hresult(wstr*);" & _
+		"GetError hresult(ptr*);" & _
+		"GetErrorCount hresult(ulong_ptr*);" & _
+		"GetId hresult(clsid*);" & _
+		"GetMinimumRetryDelay hresult(ulong_ptr*);" & _
+		"GetNoProgressTimeout hresult(ulong_ptr*);" & _
+		"GetNotifyFlags hresult(ulong_ptr*);" & _
+		"GetNotifyInterface hresult(ptr*);" & _
+		"GetOwner hresult(wstr*);" & _
+		"GetPriority hresult(int*);" & _
+		"GetProgress hresult(struct*);" & _
+		"GetProxySettings hresult(int*;wstr*;wstr*);" & _
+		"GetState hresult(int*);" & _
+		"GetTimes hresult(struct*);" & _
+		"GetType hresult(int*);" & _
+		"Resume hresult();" & _
+		"SetDescription hresult(wstr);" & _
+		"SetDisplayName hresult(wstr);" & _
+		"SetMinimumRetryDelay hresult(ulong);" & _
+		"SetNoProgressTimeout hresult(ulong);" & _
+		"SetNotifyFlags hresult(ulong);" & _
+		"SetNotifyInterface hresult(ptr);" & _
+		"SetPriority hresult(int);" & _
+		"SetProxySettings hresult(int;str*;str*);" & _
+		"Suspend hresult();" & _
+		"TakeOwnership hresult();"
 
 Local $oBackgroundCopyManager = ObjCreateInterface($sCLSID_BackgroundCopyManager, $sIID_IBackgroundCopyManager, $sTagIBackgroundCopyManager)
 If @error Then
@@ -25,4 +62,12 @@ ConsoleWrite(VarGetType($sJobId) & @CRLF)
 ConsoleWrite(VarGetType($pJob) & @CRLF)
 ConsoleWrite(IsObj($pJob) & @CRLF)
 
-$pJob.AddFile("file:///S:\Programme\PTC\Creo Parametric 7.0.2.0\MED-100WIN-CD-440_7-0-2-0_HelpCenter.zip", "C:\Temp\MED-100WIN-CD-440_7-0-2-0_HelpCenter.zip")
+Local $oBackgroundCopyJob = ObjCreateInterface($pJob, $sIID_IBackgroundCopyJob, $sTagIBackgroundCopyJob)
+If @error Then
+	ConsoleWrite("@error = " & @error & @CRLF)
+	Exit
+EndIf
+ConsoleWrite(VarGetType($oBackgroundCopyJob) & @CRLF)
+Local $pJob2 = 0
+Local $iHresult = $oBackgroundCopyManager.GetJob($sJobId, $pJob2)
+ConsoleWrite("HRESULT = " & Hex($iHresult) & @CRLF)
