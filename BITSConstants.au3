@@ -18,6 +18,32 @@
 
 ; #CONSTANTS# ===================================================================================================================
 
+; BG_JOB_PRIORITY enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_job_priority)
+Global Enum _
+		$BG_JOB_PRIORITY_FOREGROUND, _
+		$BG_JOB_PRIORITY_HIGH, _
+		$BG_JOB_PRIORITY_NORMAL, _
+		$BG_JOB_PRIORITY_LOW
+
+; BG_JOB_PROXY_USAGE enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_job_proxy_usage)
+Global Enum _
+		$BG_JOB_PROXY_USAGE_PRECONFIG, _
+		$BG_JOB_PROXY_USAGE_NO_PROXY, _
+		$BG_JOB_PROXY_USAGE_OVERRIDE, _
+		$BG_JOB_PROXY_USAGE_AUTODETECT
+
+; BG_JOB_STATE enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_job_state)
+Global Enum _
+		$BG_JOB_STATE_QUEUED, _
+		$BG_JOB_STATE_CONNECTING, _
+		$BG_JOB_STATE_TRANSFERRING, _
+		$BG_JOB_STATE_SUSPENDED, _
+		$BG_JOB_STATE_ERROR, _
+		$BG_JOB_STATE_TRANSIENT_ERROR, _
+		$BG_JOB_STATE_TRANSFERRED, _
+		$BG_JOB_STATE_ACKNOWLEDGED, _
+		$BG_JOB_STATE_CANCELLED
+
 ; BG_JOB_TYPE enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_job_type)
 Global Enum _
 		$BG_JOB_TYPE_DOWNLOAD, _
