@@ -23,9 +23,9 @@ Global Const $__BITSCONSTANT_sCLSID_BackgroundCopyManager = "{5FD42AD5-C04E-4D36
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
-		"AddFileSet hresult(ulong;struct*);" & _
+		"AddFileSet hresult(ulong;struct*);" & _ ; to-do
 		"AddFile hresult(wstr;wstr);" & _
-		"EnumFiles hresult(ptr*);" & _
+		"EnumFiles hresult(ptr*);" & _ ; to-do
 		"Suspend hresult();" & _
 		"Resume hresult();" & _
 		"Cancel hresult();" & _
@@ -33,9 +33,9 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"GetId hresult(clsid*);" & _
 		"GetType hresult(int_ptr*);" & _
 		"GetProgress hresult(struct*);" & _
-		"GetTimes hresult(struct*);" & _
+		"GetTimes hresult(struct*);" & _ ; to-do
 		"GetState hresult(int_ptr*);" & _
-		"GetError hresult(ptr*);" & _
+		"GetError hresult(ptr*);" & _ ; to-do
 		"GetOwner hresult(wstr*);" & _
 		"SetDisplayName hresult(wstr);" & _
 		"GetDisplayName hresult(wstr*);" & _
@@ -45,8 +45,8 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"GetPriority hresult(int_ptr*);" & _
 		"SetNotifyFlags hresult(ulong);" & _
 		"GetNotifyFlags hresult(ulong_ptr*);" & _
-		"SetNotifyInterface hresult(ptr);" & _
-		"GetNotifyInterface hresult(ptr*);" & _
+		"SetNotifyInterface hresult(ptr);" & _ ; to-do
+		"GetNotifyInterface hresult(ptr*);" & _ ; to-do
 		"SetMinimumRetryDelay hresult(ulong);" & _
 		"GetMinimumRetryDelay hresult(ulong_ptr*);" & _
 		"SetNoProgressTimeout hresult(ulong);" & _
@@ -59,8 +59,8 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 		"CreateJob hresult(wstr;int;clsid*;ptr*);" & _
 		"GetJob hresult(clsid;ptr*);" & _
-		"EnumJobs hresult(dword;ptr*);" & _
-		"GetErrorDescription hresult(hresult;dword;wstr*);"
+		"EnumJobs hresult(dword;ptr*);" & _ ; to-do
+		"GetErrorDescription hresult(hresult;dword;wstr*);" ; to-do
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -273,40 +273,6 @@ EndFunc   ;==>_BITS_BackgroundCopyJob_TakeOwnership
 Func _BITS_BackgroundCopyManager_CreateJob(Const ByRef $oBackgroundCopyManager, Const ByRef $sDisplayName, Const ByRef $iType)
 	Local $sJobId = ""
 	Local $pJob = 0
-;~ 	Local Const $sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
-;~ 	Local Const $sTagIBackgroundCopyJob = _
-;~ 			"AddFileSet hresult(ulong;struct*);" & _
-;~ 			"AddFile hresult(wstr;wstr);" & _
-;~ 			"EnumFiles hresult(ptr*);" & _
-;~ 			"Suspend hresult();" & _
-;~ 			"Resume hresult();" & _
-;~ 			"Cancel hresult();" & _
-;~ 			"Complete hresult();" & _
-;~ 			"GetId hresult(clsid*);" & _
-;~ 			"GetType hresult(int_ptr*);" & _
-;~ 			"GetProgress hresult(struct*);" & _
-;~ 			"GetTimes hresult(struct*);" & _
-;~ 			"GetState hresult(int_ptr*);" & _
-;~ 			"GetError hresult(ptr*);" & _
-;~ 			"GetOwner hresult(wstr*);" & _
-;~ 			"SetDisplayName hresult(wstr);" & _
-;~ 			"GetDisplayName hresult(wstr*);" & _
-;~ 			"SetDescription hresult(wstr);" & _
-;~ 			"GetDescription hresult(wstr*);" & _
-;~ 			"SetPriority hresult(int);" & _
-;~ 			"GetPriority hresult(int_ptr*);" & _
-;~ 			"SetNotifyFlags hresult(ulong);" & _
-;~ 			"GetNotifyFlags hresult(ulong_ptr*);" & _
-;~ 			"SetNotifyInterface hresult(ptr);" & _
-;~ 			"GetNotifyInterface hresult(ptr*);" & _
-;~ 			"SetMinimumRetryDelay hresult(ulong);" & _
-;~ 			"GetMinimumRetryDelay hresult(ulong_ptr*);" & _
-;~ 			"SetNoProgressTimeout hresult(ulong);" & _
-;~ 			"GetNoProgressTimeout hresult(ulong_ptr*);" & _
-;~ 			"GetErrorCount hresult(ulong_ptr*);" & _
-;~ 			"SetProxySettings hresult(int;str*;str*);" & _
-;~ 			"GetProxySettings hresult(int_ptr*;wstr*;wstr*);" & _
-;~ 			"TakeOwnership hresult();"
 	Local $oBackgroundCopyJob = 0
 
 	$oBackgroundCopyManager.CreateJob($sDisplayName, $iType, $sJobId, $pJob)
@@ -317,40 +283,6 @@ EndFunc   ;==>_BITS_BackgroundCopyManager_CreateJob
 
 Func _BITS_BackgroundCopyManager_GetJob(Const ByRef $oBackgroundCopyManager, Const ByRef $sJobId)
 	Local $pJob = 0
-;~ 	Local Const $sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
-;~ 	Local Const $sTagIBackgroundCopyJob = _
-;~ 			"AddFileSet hresult(ulong;struct*);" & _
-;~ 			"AddFile hresult(wstr;wstr);" & _
-;~ 			"EnumFiles hresult(ptr*);" & _
-;~ 			"Suspend hresult();" & _
-;~ 			"Resume hresult();" & _
-;~ 			"Cancel hresult();" & _
-;~ 			"Complete hresult();" & _
-;~ 			"GetId hresult(clsid*);" & _
-;~ 			"GetType hresult(int_ptr*);" & _
-;~ 			"GetProgress hresult(struct*);" & _
-;~ 			"GetTimes hresult(struct*);" & _
-;~ 			"GetState hresult(int_ptr*);" & _
-;~ 			"GetError hresult(ptr*);" & _
-;~ 			"GetOwner hresult(wstr*);" & _
-;~ 			"SetDisplayName hresult(wstr);" & _
-;~ 			"GetDisplayName hresult(wstr*);" & _
-;~ 			"SetDescription hresult(wstr);" & _
-;~ 			"GetDescription hresult(wstr*);" & _
-;~ 			"SetPriority hresult(int);" & _
-;~ 			"GetPriority hresult(int_ptr*);" & _
-;~ 			"SetNotifyFlags hresult(ulong);" & _
-;~ 			"GetNotifyFlags hresult(ulong_ptr*);" & _
-;~ 			"SetNotifyInterface hresult(ptr);" & _
-;~ 			"GetNotifyInterface hresult(ptr*);" & _
-;~ 			"SetMinimumRetryDelay hresult(ulong);" & _
-;~ 			"GetMinimumRetryDelay hresult(ulong_ptr*);" & _
-;~ 			"SetNoProgressTimeout hresult(ulong);" & _
-;~ 			"GetNoProgressTimeout hresult(ulong_ptr*);" & _
-;~ 			"GetErrorCount hresult(ulong_ptr*);" & _
-;~ 			"SetProxySettings hresult(int;str*;str*);" & _
-;~ 			"GetProxySettings hresult(int_ptr*;wstr*;wstr*);" & _
-;~ 			"TakeOwnership hresult();"
 	Local $oBackgroundCopyJob = 0
 
 	$oBackgroundCopyManager.GetJob($sJobId, $pJob)
@@ -360,13 +292,6 @@ Func _BITS_BackgroundCopyManager_GetJob(Const ByRef $oBackgroundCopyManager, Con
 EndFunc   ;==>_BITS_BackgroundCopyManager_GetJob
 
 Func _BITS_Connect()
-;~ 	Local Const $sCLSID_BackgroundCopyManager = "{5FD42AD5-C04E-4D36-ADC7-E08FF15737AD}" ; BITS 10.3
-;~ 	Local Const $sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
-;~ 	Local Const $sTagIBackgroundCopyManager = _
-;~ 			"CreateJob hresult(wstr;int;clsid*;ptr*);" & _
-;~ 			"GetJob hresult(clsid;ptr*);" & _
-;~ 			"EnumJobs hresult(dword;ptr*);" & _
-;~ 			"GetErrorDescription hresult(hresult;dword;wstr*);"
 	Local $oBackgroundCopyManager = 0
 
 	$oBackgroundCopyManager = ObjCreateInterface($__BITSCONSTANT_sCLSID_BackgroundCopyManager, $__BITSCONSTANT_sIID_IBackgroundCopyManager, $__BITSCONSTANT_sTagIBackgroundCopyManager)
