@@ -19,7 +19,6 @@
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
-Global Const $__BITSCONSTANT_sCLSID_BackgroundCopyManager = "{5FD42AD5-C04E-4D36-ADC7-E08FF15737AD}" ; BITS 10.3
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
@@ -292,11 +291,25 @@ Func _BITS_BackgroundCopyManager_GetJob(Const ByRef $oBackgroundCopyManager, Con
 EndFunc   ;==>_BITS_BackgroundCopyManager_GetJob
 
 Func _BITS_Connect()
+	Local $asBackgroundCopyManager_CLSIDs[] = [ _
+			"{5FD42AD5-C04E-4D36-ADC7-E08FF15737AD}", _ ; BITS 10.3
+			"{4575438F-A6C8-4976-B0FE-2F26B80D959E}", _ ; BITS 10.2
+			"{4BD3E4E1-7BD4-4A2B-9964-496400DE5193}", _ ; BITS 10.1
+			"{4D233817-B456-4E75-83D2-B17DEC544D12}", _ ; BITS 10.0
+			"{1ECCA34C-E88A-44E3-8D6A-8921BDE9E452}", _ ; BITS 5.0
+			"{BB6DF56B-CACE-11DC-9992-0019B93A3A84}", _ ; BITS 4.0
+			"{659CDEA7-489E-11D9-A9CD-000D56965251}", _ ; BITS 3.0
+			"{03CA98D6-FF5D-49B8-ABC6-03DD84127020}", _ ; BITS 2.5
+			"{6D18AD12-BDE3-4393-B311-099C346E6DF9}", _ ; BITS 2.0
+			"{F087771F-D74F-4C1A-BB8A-E16ACA9124EA}", _ ; BITS 1.5
+			"{4991D34B-80A1-4291-83B6-3328366B9097}" _ ; BITS 1.0
+			]
 	Local $oBackgroundCopyManager = 0
 
-	$oBackgroundCopyManager = ObjCreateInterface($__BITSCONSTANT_sCLSID_BackgroundCopyManager, $__BITSCONSTANT_sIID_IBackgroundCopyManager, $__BITSCONSTANT_sTagIBackgroundCopyManager)
+	For $sBackgroundCopyManager_CLSID In $asBackgroundCopyManager_CLSIDs
+		$oBackgroundCopyManager = ObjCreateInterface($sBackgroundCopyManager_CLSID, $__BITSCONSTANT_sIID_IBackgroundCopyManager, $__BITSCONSTANT_sTagIBackgroundCopyManager)
+		If Not @error Then ExitLoop
+	Next
 
 	Return $oBackgroundCopyManager
 EndFunc   ;==>_BITS_Connect
-
-
