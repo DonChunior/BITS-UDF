@@ -5,6 +5,7 @@
 #include-once
 
 #include "BITSConstants.au3"
+#include <WinAPIDiag.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: BITS (Background Intelligent Transfer Service)
@@ -22,7 +23,7 @@
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
-		"AddFileSet hresult(ulong;struct*);" & _ ; to-do
+		"AddFileSet hresult(ulong;struct*);" & _
 		"AddFile hresult(wstr;wstr);" & _
 		"EnumFiles hresult(ptr*);" & _ ; to-do
 		"Suspend hresult();" & _
@@ -63,8 +64,10 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
+;$tagBG_FILE_INFO
 ;$tagBG_JOB_PROGRESS
 ;_BITS_BackgroundCopyJob_AddFile
+;_BITS_BackgroundCopyJob_AddFileSet
 ;_BITS_BackgroundCopyJob_Cancel
 ;_BITS_BackgroundCopyJob_Complete
 ;_BITS_BackgroundCopyJob_GetDescription
@@ -104,6 +107,37 @@ Global Const $tagBG_JOB_PROGRESS = "struct;uint64 BytesTotal;uint64 BytesTransfe
 Func _BITS_BackgroundCopyJob_AddFile(Const ByRef $oBackgroundCopyJob, Const ByRef $sRemoteUrl, Const ByRef $sLocalName)
 	$oBackgroundCopyJob.AddFile($sRemoteUrl, $sLocalName)
 EndFunc   ;==>_BITS_BackgroundCopyJob_AddFile
+
+Func _BITS_BackgroundCopyJob_AddFileSet(Const ByRef $oBackgroundCopyJob, Const ByRef $aFileSet)
+	Local $iFileCount = 0
+	; BG_FILE_INFO structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_file_info)
+	Local $tagBG_FILE_INFO = ""
+	Local $tBG_FILE_INFO = 0
+	Local $atRemoteNames[0]
+	Local $atLocalNames[0]
+
+	$iFileCount = UBound($aFileSet)
+	For $i = 1 To $iFileCount
+		$tagBG_FILE_INFO &= "ptr;ptr;"
+	Next
+	$tBG_FILE_INFO = DllStructCreate($tagBG_FILE_INFO)
+	ReDim $atRemoteNames[$iFileCount]
+	ReDim $atLocalNames[$iFileCount]
+	For $i = 0 To $iFileCount - 1
+		$atRemoteNames[$i] = DllStructCreate("wchar[" & StringLen($aFileSet[$i][0]) + 1 & "];")
+		$atLocalNames[$i] = DllStructCreate("wchar[" & StringLen($aFileSet[$i][1]) + 1 & "];")
+		DllStructSetData($atRemoteNames[$i], 1, $aFileSet[$i][0])
+		DllStructSetData($atLocalNames[$i], 1, $aFileSet[$i][1])
+		DllStructSetData($tBG_FILE_INFO, $i * 2 + 1, DllStructGetPtr($atRemoteNames[$i]))
+		DllStructSetData($tBG_FILE_INFO, $i * 2 + 2, DllStructGetPtr($atLocalNames[$i]))
+	Next
+	$oBackgroundCopyJob.AddFileSet($iFileCount, $tBG_FILE_INFO)
+	For $i = 0 To $iFileCount - 1
+		$atRemoteNames[$i] = 0
+		$atLocalNames[$i] = 0
+	Next
+	$tBG_FILE_INFO = 0
+EndFunc   ;==>_BITS_BackgroundCopyJob_AddFileSet
 
 Func _BITS_BackgroundCopyJob_Cancel(Const ByRef $oBackgroundCopyJob)
 	$oBackgroundCopyJob.Cancel()
@@ -195,6 +229,7 @@ Func _BITS_BackgroundCopyJob_GetProgress(Const ByRef $oBackgroundCopyJob)
 	$aProgress[1] = DllStructGetData($tBG_JOB_PROGRESS, "BytesTransferred")
 	$aProgress[2] = DllStructGetData($tBG_JOB_PROGRESS, "FilesTotal")
 	$aProgress[3] = DllStructGetData($tBG_JOB_PROGRESS, "FilesTransferred")
+	$tBG_JOB_PROGRESS = 0
 
 	Return $aProgress
 EndFunc   ;==>_BITS_BackgroundCopyJob_GetProgress
