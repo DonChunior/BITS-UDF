@@ -101,8 +101,6 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; ===============================================================================================================================
 
-; BG_FILE_INFO structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_file_info)
-Global Const $tagBG_FILE_INFO = "struct;wchar remoteName[2201];wchar localName[261];endstruct"
 ; BG_JOB_PROGRESS structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_progress)
 Global Const $tagBG_JOB_PROGRESS = "struct;uint64 BytesTotal;uint64 BytesTransferred;ulong FilesTotal;ulong FilesTransferred;endstruct"
 
@@ -111,27 +109,34 @@ Func _BITS_BackgroundCopyJob_AddFile(Const ByRef $oBackgroundCopyJob, Const ByRe
 EndFunc   ;==>_BITS_BackgroundCopyJob_AddFile
 
 Func _BITS_BackgroundCopyJob_AddFileSet(Const ByRef $oBackgroundCopyJob, Const ByRef $aFileSet)
-	Local $sStructDef
-	Local $tStruct
-	Local $pStruct
+	Local $iFileCount = 0
+	; BG_FILE_INFO structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_file_info)
+	Local $tagBG_FILE_INFO = ""
+	Local $tBG_FILE_INFO = 0
+	Local $atRemoteNames[0]
+	Local $atLocalNames[0]
 
-	For $i = 0 To UBound($aFileSet) - 1
-		$sStructDef &= "char r" & $i + 1 & "[" & StringLen($aFileSet[$i][0]) + 1 & "];char l" & $i + 1 & "[" & StringLen($aFileSet[$i][1]) + 1 & "];"
+	$iFileCount = UBound($aFileSet)
+	For $i = 1 To $iFileCount
+		$tagBG_FILE_INFO &= "ptr;ptr;"
 	Next
-
-	ConsoleWrite($sStructDef & @CRLF)
-
-	$tStruct = DllStructCreate($sStructDef)
-	For $i = 0 To UBound($aFileSet) - 1
-		DllStructSetData($tStruct, "r" & $i + 1, $aFileSet[$i][0])
-		DllStructSetData($tStruct, "l" & $i + 1, $aFileSet[$i][1])
+	$tBG_FILE_INFO = DllStructCreate($tagBG_FILE_INFO)
+	ReDim $atRemoteNames[$iFileCount]
+	ReDim $atLocalNames[$iFileCount]
+	For $i = 0 To $iFileCount - 1
+		$atRemoteNames[$i] = DllStructCreate("wchar[" & StringLen($aFileSet[$i][0]) + 1 & "];")
+		$atLocalNames[$i] = DllStructCreate("wchar[" & StringLen($aFileSet[$i][1]) + 1 & "];")
+		DllStructSetData($atRemoteNames[$i], 1, $aFileSet[$i][0])
+		DllStructSetData($atLocalNames[$i], 1, $aFileSet[$i][1])
+		DllStructSetData($tBG_FILE_INFO, $i * 2 + 1, DllStructGetPtr($atRemoteNames[$i]))
+		DllStructSetData($tBG_FILE_INFO, $i * 2 + 2, DllStructGetPtr($atLocalNames[$i]))
 	Next
-
-	_WinAPI_DisplayStruct($tStruct, $sStructDef)
-
-	$pStruct = DllStructGetPtr($tStruct)
-
-	$oBackgroundCopyJob.AddFileSet(UBound($aFileSet), $pStruct)
+	$oBackgroundCopyJob.AddFileSet($iFileCount, $tBG_FILE_INFO)
+	For $i = 0 To $iFileCount - 1
+		$atRemoteNames[$i] = 0
+		$atLocalNames[$i] = 0
+	Next
+	$tBG_FILE_INFO = 0
 EndFunc   ;==>_BITS_BackgroundCopyJob_AddFileSet
 
 Func _BITS_BackgroundCopyJob_Cancel(Const ByRef $oBackgroundCopyJob)
