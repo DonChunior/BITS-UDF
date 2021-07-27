@@ -5,7 +5,8 @@
 #include-once
 
 #include "BITSConstants.au3"
-#include <WinAPIDiag.au3>
+#include <StructureConstants.au3>
+#include <Date.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: BITS (Background Intelligent Transfer Service)
@@ -33,7 +34,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"GetId hresult(clsid*);" & _
 		"GetType hresult(int_ptr*);" & _
 		"GetProgress hresult(struct*);" & _
-		"GetTimes hresult(struct*);" & _ ; to-do
+		"GetTimes hresult(struct*);" & _
 		"GetState hresult(int_ptr*);" & _
 		"GetError hresult(ptr*);" & _ ; to-do
 		"GetOwner hresult(wstr*);" & _
@@ -82,6 +83,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ;_BITS_BackgroundCopyJob_GetProgress
 ;_BITS_BackgroundCopyJob_GetProxySettings
 ;_BITS_BackgroundCopyJob_GetState
+;_BITS_BackgroundCopyJob_GetTimes
 ;_BITS_BackgroundCopyJob_GetType
 ;_BITS_BackgroundCopyJob_Resume
 ;_BITS_BackgroundCopyJob_SetDescription
@@ -103,6 +105,8 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 
 ; BG_JOB_PROGRESS structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_progress)
 Global Const $tagBG_JOB_PROGRESS = "struct;uint64 BytesTotal;uint64 BytesTransferred;ulong FilesTotal;ulong FilesTransferred;endstruct"
+; BG_JOB_TIMES structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_times)
+Global Const $tagBG_JOB_TIMES = $tagFILETIME & ";" & $tagFILETIME & ";" & $tagFILETIME
 
 Func _BITS_BackgroundCopyJob_AddFile(Const ByRef $oBackgroundCopyJob, Const ByRef $sRemoteUrl, Const ByRef $sLocalName)
 	$oBackgroundCopyJob.AddFile($sRemoteUrl, $sLocalName)
@@ -255,6 +259,34 @@ Func _BITS_BackgroundCopyJob_GetState(Const ByRef $oBackgroundCopyJob)
 
 	Return $iVal
 EndFunc   ;==>_BITS_BackgroundCopyJob_GetState
+
+Func _BITS_BackgroundCopyJob_GetTimes(Const ByRef $oBackgroundCopyJob)
+	Local $tBG_JOB_TIMES = 0
+	Local $tFILETIME = 0
+	Local $tStructData = 0
+	Local $tSYSTEMTIME = 0
+	Local $aTimes[3] = ["", "", ""]
+
+	$tBG_JOB_TIMES = DllStructCreate($tagBG_JOB_TIMES)
+	$oBackgroundCopyJob.GetTimes($tBG_JOB_TIMES)
+	$tFILETIME = DllStructCreate($tagFILETIME)
+	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 1))
+	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 2))
+	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
+	$aTimes[0] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 3))
+	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 4))
+	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
+	$aTimes[1] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 5))
+	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 6))
+	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
+	$aTimes[2] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	$tFILETIME = 0
+	$tBG_JOB_TIMES = 0
+
+	Return $aTimes
+EndFunc   ;==>_BITS_BackgroundCopyJob_GetTimes
 
 Func _BITS_BackgroundCopyJob_GetType(Const ByRef $oBackgroundCopyJob)
 	Local $iVal = 0
