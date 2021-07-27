@@ -34,7 +34,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"GetId hresult(clsid*);" & _
 		"GetType hresult(int_ptr*);" & _
 		"GetProgress hresult(struct*);" & _
-		"GetTimes hresult(struct*);" & _ ; to-do
+		"GetTimes hresult(struct*);" & _
 		"GetState hresult(int_ptr*);" & _
 		"GetError hresult(ptr*);" & _ ; to-do
 		"GetOwner hresult(wstr*);" & _
@@ -268,22 +268,12 @@ Func _BITS_BackgroundCopyJob_GetTimes(Const ByRef $oBackgroundCopyJob)
 	Local $aTimes[3] = ["", "", ""]
 
 	$tBG_JOB_TIMES = DllStructCreate($tagBG_JOB_TIMES)
-	If @error Then ConsoleWrite("DllStructCreate($tagBG_JOB_TIMES) = " & @error & @CRLF)
-	$oBackgroundCopyJob.GetProgress($tBG_JOB_TIMES)
+	$oBackgroundCopyJob.GetTimes($tBG_JOB_TIMES)
 	$tFILETIME = DllStructCreate($tagFILETIME)
-	If @error Then ConsoleWrite("DllStructCreate($tagFILETIME) = " & @error & @CRLF)
-	$tStructData = DllStructGetData($tBG_JOB_TIMES, 1)
-	If @error Then ConsoleWrite("DllStructGetData($tBG_JOB_TIMES, 1) = " & @error & @CRLF)
-	DllStructSetData($tFILETIME, 1, $tStructData)
-	If @error Then ConsoleWrite("DllStructSetData($tFILETIME, 1, $tStructData) = " & @error & @CRLF)
-	$tStructData = DllStructGetData($tBG_JOB_TIMES, 2)
-	If @error Then ConsoleWrite("DllStructGetData($tBG_JOB_TIMES, 2) = " & @error & @CRLF)
-	DllStructSetData($tFILETIME, 2, $tStructData)
-	If @error Then ConsoleWrite("DllStructSetData($tFILETIME, 1, $tStructData) = " & @error & @CRLF)
+	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 1))
+	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 2))
 	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	If @error Then ConsoleWrite("_Date_Time_FileTimeToSystemTime($tFILETIME) = " & @error & @CRLF)
 	$aTimes[0] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
-	If @error Then ConsoleWrite("_Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1) = " & @error & @CRLF)
 	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 3))
 	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 4))
 	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
