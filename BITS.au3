@@ -263,28 +263,39 @@ EndFunc   ;==>_BITS_BackgroundCopyJob_GetState
 Func _BITS_BackgroundCopyJob_GetTimes(Const ByRef $oBackgroundCopyJob)
 	Local $tBG_JOB_TIMES = 0
 	Local $tFILETIME = 0
+	Local $tStructData = 0
 	Local $tSYSTEMTIME = 0
-	Local $asTimes[3] = ["", "", ""]
+	Local $aTimes[3] = ["", "", ""]
 
 	$tBG_JOB_TIMES = DllStructCreate($tagBG_JOB_TIMES)
+	If @error Then ConsoleWrite("DllStructCreate($tagBG_JOB_TIMES) = " & @error & @CRLF)
 	$oBackgroundCopyJob.GetProgress($tBG_JOB_TIMES)
 	$tFILETIME = DllStructCreate($tagFILETIME)
-	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 1))
-	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 2))
+	If @error Then ConsoleWrite("DllStructCreate($tagFILETIME) = " & @error & @CRLF)
+	$tStructData = DllStructGetData($tBG_JOB_TIMES, 1)
+	If @error Then ConsoleWrite("DllStructGetData($tBG_JOB_TIMES, 1) = " & @error & @CRLF)
+	DllStructSetData($tFILETIME, 1, $tStructData)
+	If @error Then ConsoleWrite("DllStructSetData($tFILETIME, 1, $tStructData) = " & @error & @CRLF)
+	$tStructData = DllStructGetData($tBG_JOB_TIMES, 2)
+	If @error Then ConsoleWrite("DllStructGetData($tBG_JOB_TIMES, 2) = " & @error & @CRLF)
+	DllStructSetData($tFILETIME, 2, $tStructData)
+	If @error Then ConsoleWrite("DllStructSetData($tFILETIME, 1, $tStructData) = " & @error & @CRLF)
 	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	$asTimes[0] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	If @error Then ConsoleWrite("_Date_Time_FileTimeToSystemTime($tFILETIME) = " & @error & @CRLF)
+	$aTimes[0] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	If @error Then ConsoleWrite("_Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1) = " & @error & @CRLF)
 	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 3))
 	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 4))
 	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	$asTimes[1] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	$aTimes[1] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
 	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 5))
 	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 6))
 	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	$asTimes[2] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
+	$aTimes[2] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
 	$tFILETIME = 0
 	$tBG_JOB_TIMES = 0
 
-	Return $asTimes
+	Return $aTimes
 EndFunc   ;==>_BITS_BackgroundCopyJob_GetTimes
 
 Func _BITS_BackgroundCopyJob_GetType(Const ByRef $oBackgroundCopyJob)
