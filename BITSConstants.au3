@@ -18,6 +18,18 @@
 
 ; #CONSTANTS# ===================================================================================================================
 
+; BG_ERROR_CONTEXT enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_error_context)
+Global Enum _
+		$BG_ERROR_CONTEXT_NONE, _
+		$BG_ERROR_CONTEXT_UNKNOWN, _
+		$BG_ERROR_CONTEXT_GENERAL_QUEUE_MANAGER, _
+		$BG_ERROR_CONTEXT_QUEUE_MANAGER_NOTIFICATION, _
+		$BG_ERROR_CONTEXT_LOCAL_FILE, _
+		$BG_ERROR_CONTEXT_REMOTE_FILE, _
+		$BG_ERROR_CONTEXT_GENERAL_TRANSPORT, _
+		$BG_ERROR_CONTEXT_REMOTE_APPLICATION, _
+		$BG_ERROR_CONTEXT_SERVER_CERTIFICATE_CALLBACK
+
 ; BG_JOB_PRIORITY enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_job_priority)
 Global Enum _
 		$BG_JOB_PRIORITY_FOREGROUND, _
