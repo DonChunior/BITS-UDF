@@ -21,8 +21,15 @@
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
+Global Const $__BITSCONSTANT_sIID_IBackgroundCopyError = "{19C613A0-FCB8-4F28-81AE-897C3D078F81}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
+Global Const $__BITSCONSTANT_sTagIBackgroundCopyError = _
+		"GetError hresult(int_ptr*;hresult*);" & _
+		"GetFile hresult(ptr*);" & _ ; to-do
+		"GetErrorDescription hresult(dword;wstr*);" & _
+		"GetErrorContextDescription hresult(dword;wstr*);" & _
+		"GetProtocol hresult(wstr*);"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"AddFileSet hresult(ulong;struct*);" & _
 		"AddFile hresult(wstr;wstr);" & _
@@ -36,7 +43,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"GetProgress hresult(struct*);" & _
 		"GetTimes hresult(struct*);" & _
 		"GetState hresult(int_ptr*);" & _
-		"GetError hresult(ptr*);" & _ ; to-do
+		"GetError hresult(ptr*);" & _
 		"GetOwner hresult(wstr*);" & _
 		"SetDisplayName hresult(wstr);" & _
 		"GetDisplayName hresult(wstr*);" & _
@@ -53,10 +60,9 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"SetNoProgressTimeout hresult(ulong);" & _
 		"GetNoProgressTimeout hresult(ulong_ptr*);" & _
 		"GetErrorCount hresult(ulong_ptr*);" & _
-		"SetProxySettings hresult(int;str*;str*);" & _
+		"SetProxySettings hresult(int;wstr*;wstr*);" & _ ; to-do
 		"GetProxySettings hresult(int_ptr*;wstr*;wstr*);" & _
 		"TakeOwnership hresult();"
-
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 		"CreateJob hresult(wstr;int;clsid*;ptr*);" & _
 		"GetJob hresult(clsid;ptr*);" & _
@@ -65,14 +71,19 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
-;$tagBG_FILE_INFO
 ;$tagBG_JOB_PROGRESS
+;$tagBG_JOB_TIMES
+;_BITS_BackgroundCopyError_GetError
+;_BITS_BackgroundCopyError_GetErrorContextDescription
+;_BITS_BackgroundCopyError_GetErrorDescription
+;_BITS_BackgroundCopyError_GetProtocol
 ;_BITS_BackgroundCopyJob_AddFile
 ;_BITS_BackgroundCopyJob_AddFileSet
 ;_BITS_BackgroundCopyJob_Cancel
 ;_BITS_BackgroundCopyJob_Complete
 ;_BITS_BackgroundCopyJob_GetDescription
 ;_BITS_BackgroundCopyJob_GetDisplayName
+;_BITS_BackgroundCopyJob_GetError
 ;_BITS_BackgroundCopyJob_GetErrorCount
 ;_BITS_BackgroundCopyJob_GetId
 ;_BITS_BackgroundCopyJob_GetMinimumRetryDelay
@@ -107,6 +118,42 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 Global Const $tagBG_JOB_PROGRESS = "struct;uint64 BytesTotal;uint64 BytesTransferred;ulong FilesTotal;ulong FilesTransferred;endstruct"
 ; BG_JOB_TIMES structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_times)
 Global Const $tagBG_JOB_TIMES = $tagFILETIME & ";" & $tagFILETIME & ";" & $tagFILETIME
+
+Func _BITS_BackgroundCopyError_GetError(Const ByRef $oBackgroundCopyError)
+	Local $iContext = 0
+	Local $iCode = 0
+	Local $aError[2] = [0, 0]
+
+	$oBackgroundCopyError.GetError($iContext, $iCode)
+	$aError[0] = $iContext
+	$aError[1] = $iCode
+
+	Return $aError
+EndFunc   ;==>_BITS_BackgroundCopyError_GetError
+
+Func _BITS_BackgroundCopyError_GetErrorContextDescription(Const ByRef $oBackgroundCopyError, Const ByRef $iLanguageId)
+	Local $sContextDescription = ""
+
+	$oBackgroundCopyError.GetErrorContextDescription($iLanguageId, $sContextDescription)
+
+	Return $sContextDescription
+EndFunc   ;==>_BITS_BackgroundCopyError_GetErrorContextDescription
+
+Func _BITS_BackgroundCopyError_GetErrorDescription(Const ByRef $oBackgroundCopyError, Const ByRef $iLanguageId)
+	Local $sErrorDescription = ""
+
+	$oBackgroundCopyError.GetErrorDescription($iLanguageId, $sErrorDescription)
+
+	Return $sErrorDescription
+EndFunc   ;==>_BITS_BackgroundCopyError_GetErrorDescription
+
+Func _BITS_BackgroundCopyError_GetProtocol(Const ByRef $oBackgroundCopyError)
+	Local $sProtocol = ""
+
+	$oBackgroundCopyError.GetProtocol($sProtocol)
+
+	Return $sProtocol
+EndFunc   ;==>_BITS_BackgroundCopyError_GetProtocol
 
 Func _BITS_BackgroundCopyJob_AddFile(Const ByRef $oBackgroundCopyJob, Const ByRef $sRemoteUrl, Const ByRef $sLocalName)
 	$oBackgroundCopyJob.AddFile($sRemoteUrl, $sLocalName)
@@ -166,6 +213,17 @@ Func _BITS_BackgroundCopyJob_GetDisplayName(Const ByRef $oBackgroundCopyJob)
 
 	Return $sDisplayName
 EndFunc   ;==>_BITS_BackgroundCopyJob_GetDisplayName
+
+Func _BITS_BackgroundCopyJob_GetError(Const ByRef $oBackgroundCopyJob)
+	Local $pError = 0
+	Local $oBackgroundCopyError = 0
+
+	$oBackgroundCopyJob.GetError($pError)
+	$oBackgroundCopyError = ObjCreateInterface($pError, $__BITSCONSTANT_sIID_IBackgroundCopyError, $__BITSCONSTANT_sTagIBackgroundCopyError)
+	If @error Then ConsoleWrite("Aaargh: " & @CRLF)
+
+	Return $oBackgroundCopyError
+EndFunc   ;==>_BITS_BackgroundCopyJob_GetError
 
 Func _BITS_BackgroundCopyJob_GetErrorCount(Const ByRef $oBackgroundCopyJob)
 	Local $iErrors = 0
@@ -325,7 +383,8 @@ Func _BITS_BackgroundCopyJob_SetPriority(Const ByRef $oBackgroundCopyJob, Const 
 EndFunc   ;==>_BITS_BackgroundCopyJob_SetPriority
 
 Func _BITS_BackgroundCopyJob_SetProxySettings(Const ByRef $oBackgroundCopyJob, Const ByRef $iProxyUsage, Const ByRef $sProxyList, Const ByRef $sProxyBypassList)
-	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, $sProxyList, $sProxyBypassList)
+;~ 	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, $sProxyList, $sProxyBypassList)
+	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, DllStructCreate("wchar[" & StringLen($sProxyList) + 1 & "];"), DllStructCreate("wchar[" & StringLen($sProxyBypassList) + 1 & "];"))
 EndFunc   ;==>_BITS_BackgroundCopyJob_SetProxySettings
 
 Func _BITS_BackgroundCopyJob_Suspend(Const ByRef $oBackgroundCopyJob)
