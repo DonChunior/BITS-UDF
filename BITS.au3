@@ -67,7 +67,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 		"CreateJob hresult(wstr;int;clsid*;ptr*);" & _
 		"GetJob hresult(clsid;ptr*);" & _
 		"EnumJobs hresult(dword;ptr*);" & _ ; to-do
-		"GetErrorDescription hresult(hresult;dword;wstr*);" ; to-do
+		"GetErrorDescription hresult(hresult;dword;wstr*);"
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -107,6 +107,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ;_BITS_BackgroundCopyJob_Suspend
 ;_BITS_BackgroundCopyJob_TakeOwnership
 ;_BITS_BackgroundCopyManager_CreateJob
+;_BITS_BackgroundCopyManager_GetErrorDescription
 ;_BITS_BackgroundCopyManager_GetJob
 ;_BITS_Connect
 ; ===============================================================================================================================
@@ -405,6 +406,14 @@ Func _BITS_BackgroundCopyManager_CreateJob(Const ByRef $oBackgroundCopyManager, 
 
 	Return $oBackgroundCopyJob
 EndFunc   ;==>_BITS_BackgroundCopyManager_CreateJob
+
+Func _BITS_BackgroundCopyManager_GetErrorDescription(Const ByRef $oBackgroundCopyManager, Const ByRef $iHresult, Const ByRef $iLanguageId)
+	Local $sErrorDescription = ""
+
+	$oBackgroundCopyManager.GetErrorDescription($iHresult, $iLanguageId, $sErrorDescription)
+
+	Return $sErrorDescription
+EndFunc   ;==>_BITS_BackgroundCopyManager_GetErrorDescription
 
 Func _BITS_BackgroundCopyManager_GetJob(Const ByRef $oBackgroundCopyManager, Const ByRef $sJobId)
 	Local $pJob = 0
