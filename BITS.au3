@@ -22,14 +22,19 @@
 
 ; #CONSTANTS# ===================================================================================================================
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyError = "{19C613A0-FCB8-4F28-81AE-897C3D078F81}"
+Global Const $__BITSCONSTANT_sIID_IBackgroundCopyFile = "{01B7BD23-FB88-4A77-8490-5891D3E4653A}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyError = _
 		"GetError hresult(int_ptr*;hresult*);" & _
-		"GetFile hresult(ptr*);" & _ ; to-do
+		"GetFile hresult(ptr*);" & _
 		"GetErrorDescription hresult(dword;wstr*);" & _
 		"GetErrorContextDescription hresult(dword;wstr*);" & _
 		"GetProtocol hresult(wstr*);"
+Global Const $__BITSCONSTANT_sTagIBackgroundCopyFile = _
+		"GetRemoteName hresult(wstr*);" & _
+		"GetLocalName hresult(wstr*);" & _
+		"GetProgress hresult(struct*);" ; to-do
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"AddFileSet hresult(ulong;struct*);" & _
 		"AddFile hresult(wstr;wstr);" & _
@@ -71,12 +76,16 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
+;$tagBG_FILE_PROGRESS
 ;$tagBG_JOB_PROGRESS
 ;$tagBG_JOB_TIMES
 ;_BITS_BackgroundCopyError_GetError
 ;_BITS_BackgroundCopyError_GetErrorContextDescription
 ;_BITS_BackgroundCopyError_GetErrorDescription
+;_BITS_BackgroundCopyError_GetFile
 ;_BITS_BackgroundCopyError_GetProtocol
+;_BITS_BackgroundCopyFile_GetLocalName
+;_BITS_BackgroundCopyFile_GetRemoteName
 ;_BITS_BackgroundCopyJob_AddFile
 ;_BITS_BackgroundCopyJob_AddFileSet
 ;_BITS_BackgroundCopyJob_Cancel
@@ -115,6 +124,8 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
 ; ===============================================================================================================================
 
+; BG_FILE_PROGRESS structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_file_progress)
+Global Const $tagBG_FILE_PROGRESS = "struct;uint64 BytesTotal;uint64 BytesTransferred;bool Completed;endstruct"
 ; BG_JOB_PROGRESS structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_progress)
 Global Const $tagBG_JOB_PROGRESS = "struct;uint64 BytesTotal;uint64 BytesTransferred;ulong FilesTotal;ulong FilesTransferred;endstruct"
 ; BG_JOB_TIMES structure (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_times)
@@ -148,6 +159,16 @@ Func _BITS_BackgroundCopyError_GetErrorDescription(Const ByRef $oBackgroundCopyE
 	Return $sErrorDescription
 EndFunc   ;==>_BITS_BackgroundCopyError_GetErrorDescription
 
+Func _BITS_BackgroundCopyError_GetFile(Const ByRef $oBackgroundCopyError)
+	Local $pFile = 0
+	Local $oBackgroundCopyFile = 0
+
+	$oBackgroundCopyError.GetFile($pFile)
+	$oBackgroundCopyFile = ObjCreateInterface($pFile, $__BITSCONSTANT_sIID_IBackgroundCopyFile, $__BITSCONSTANT_sTagIBackgroundCopyFile)
+
+	Return $oBackgroundCopyFile
+EndFunc   ;==>_BITS_BackgroundCopyError_GetFile
+
 Func _BITS_BackgroundCopyError_GetProtocol(Const ByRef $oBackgroundCopyError)
 	Local $sProtocol = ""
 
@@ -155,6 +176,22 @@ Func _BITS_BackgroundCopyError_GetProtocol(Const ByRef $oBackgroundCopyError)
 
 	Return $sProtocol
 EndFunc   ;==>_BITS_BackgroundCopyError_GetProtocol
+
+Func _BITS_BackgroundCopyFile_GetLocalName(Const ByRef $oBackgroundCopyFile)
+	Local $sLocalName = ""
+
+	$oBackgroundCopyFile.GetLocalName($sLocalName)
+
+	Return $sLocalName
+EndFunc   ;==>_BITS_BackgroundCopyFile_GetLocalName
+
+Func _BITS_BackgroundCopyFile_GetRemoteName(Const ByRef $oBackgroundCopyFile)
+	Local $sRemoteName = ""
+
+	$oBackgroundCopyFile.GetRemoteName($sRemoteName)
+
+	Return $sRemoteName
+EndFunc   ;==>_BITS_BackgroundCopyFile_GetRemoteName
 
 Func _BITS_BackgroundCopyJob_AddFile(Const ByRef $oBackgroundCopyJob, Const ByRef $sRemoteUrl, Const ByRef $sLocalName)
 	$oBackgroundCopyJob.AddFile($sRemoteUrl, $sLocalName)
@@ -221,7 +258,6 @@ Func _BITS_BackgroundCopyJob_GetError(Const ByRef $oBackgroundCopyJob)
 
 	$oBackgroundCopyJob.GetError($pError)
 	$oBackgroundCopyError = ObjCreateInterface($pError, $__BITSCONSTANT_sIID_IBackgroundCopyError, $__BITSCONSTANT_sTagIBackgroundCopyError)
-	If @error Then ConsoleWrite("Aaargh: " & @CRLF)
 
 	Return $oBackgroundCopyError
 EndFunc   ;==>_BITS_BackgroundCopyJob_GetError
