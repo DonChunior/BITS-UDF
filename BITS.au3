@@ -34,7 +34,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyError = _
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyFile = _
 		"GetRemoteName hresult(wstr*);" & _
 		"GetLocalName hresult(wstr*);" & _
-		"GetProgress hresult(struct*);" ; to-do
+		"GetProgress hresult(struct*);"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"AddFileSet hresult(ulong;struct*);" & _
 		"AddFile hresult(wstr;wstr);" & _
@@ -85,6 +85,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ;_BITS_BackgroundCopyError_GetFile
 ;_BITS_BackgroundCopyError_GetProtocol
 ;_BITS_BackgroundCopyFile_GetLocalName
+;_BITS_BackgroundCopyFile_GetProgress
 ;_BITS_BackgroundCopyFile_GetRemoteName
 ;_BITS_BackgroundCopyJob_AddFile
 ;_BITS_BackgroundCopyJob_AddFileSet
@@ -184,6 +185,20 @@ Func _BITS_BackgroundCopyFile_GetLocalName(Const ByRef $oBackgroundCopyFile)
 
 	Return $sLocalName
 EndFunc   ;==>_BITS_BackgroundCopyFile_GetLocalName
+
+Func _BITS_BackgroundCopyFile_GetProgress(Const ByRef $oBackgroundCopyFile)
+	Local $tBG_FILE_PROGRESS = 0
+	Local $aProgress[3] = [0, 0, 0]
+
+	$tBG_FILE_PROGRESS = DllStructCreate($tagBG_FILE_PROGRESS)
+	ConsoleWrite("File.GetProgress = " & $oBackgroundCopyFile.GetProgress($tBG_FILE_PROGRESS) & @CRLF)
+	$aProgress[0] = DllStructGetData($tBG_FILE_PROGRESS, "BytesTotal")
+	$aProgress[1] = DllStructGetData($tBG_FILE_PROGRESS, "BytesTransferred")
+	$aProgress[2] = DllStructGetData($tBG_FILE_PROGRESS, "Completed")
+	$tBG_FILE_PROGRESS = 0
+
+	Return $aProgress
+EndFunc   ;==>_BITS_BackgroundCopyFile_GetProgress
 
 Func _BITS_BackgroundCopyFile_GetRemoteName(Const ByRef $oBackgroundCopyFile)
 	Local $sRemoteName = ""
@@ -320,7 +335,7 @@ EndFunc   ;==>_BITS_BackgroundCopyJob_GetPriority
 
 Func _BITS_BackgroundCopyJob_GetProgress(Const ByRef $oBackgroundCopyJob)
 	Local $tBG_JOB_PROGRESS = 0
-	Local $aProgress[4]
+	Local $aProgress[4] = [0, 0, 0, 0]
 
 	$tBG_JOB_PROGRESS = DllStructCreate($tagBG_JOB_PROGRESS)
 	$oBackgroundCopyJob.GetProgress($tBG_JOB_PROGRESS)
