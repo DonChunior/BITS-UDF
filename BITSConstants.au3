@@ -30,6 +30,9 @@ Global Enum _
 		$BG_ERROR_CONTEXT_REMOTE_APPLICATION, _
 		$BG_ERROR_CONTEXT_SERVER_CERTIFICATE_CALLBACK
 
+; BG_JOB_ENUM_ALL_USERS flag (https://docs.microsoft.com/en-us/windows/win32/api/bits/nf-bits-ibackgroundcopymanager-enumjobs)
+Global Const $BG_JOB_ENUM_ALL_USERS = 0x0001
+
 ; BG_JOB_PRIORITY enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_job_priority)
 Global Enum _
 		$BG_JOB_PRIORITY_FOREGROUND, _
@@ -69,6 +72,9 @@ Global Const $BG_NOTIFY_DISABLE = 0x0004
 Global Const $BG_NOTIFY_JOB_MODIFICATION = 0x0008
 Global Const $BG_NOTIFY_FILE_TRANSFERRED = 0x0010
 Global Const $BG_NOTIFY_FILE_RANGES_TRANSFERRED = 0x0020
+
+; BG_SIZE_UNKNOWN constant (https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_file_progress and https://docs.microsoft.com/en-us/windows/win32/api/bits/ns-bits-bg_job_progress)
+Global Const $BG_SIZE_UNKNOWN = -1
 
 ; ===============================================================================================================================
 
