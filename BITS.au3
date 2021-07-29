@@ -25,6 +25,7 @@ Global Const $__BITSCONSTANT_sIID_IBackgroundCopyError = "{19C613A0-FCB8-4F28-81
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyFile = "{01B7BD23-FB88-4A77-8490-5891D3E4653A}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
+Global Const $__BITSCONSTANT_sIID_IEnumBackgroundCopyFiles = "{CA51E165-C365-424C-8D41-24AAA4FF3C40}"
 Global Const $__BITSCONSTANT_sIID_IEnumBackgroundCopyJobs = "{1AF4F612-3B71-466F-8F58-7B6F73AC57AD}"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyError = _
 		"GetError hresult(int_ptr*;hresult*);" & _
@@ -39,7 +40,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyFile = _
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"AddFileSet hresult(ulong;struct*);" & _
 		"AddFile hresult(wstr;wstr);" & _
-		"EnumFiles hresult(ptr*);" & _ ; to-do
+		"EnumFiles hresult(ptr*);" & _
 		"Suspend hresult();" & _
 		"Resume hresult();" & _
 		"Cancel hresult();" & _
@@ -74,6 +75,12 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 		"GetJob hresult(clsid;ptr*);" & _
 		"EnumJobs hresult(dword;ptr*);" & _
 		"GetErrorDescription hresult(hresult;dword;wstr*);"
+Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles = _
+		"Next hresult(ulong;ptr*;ulong_ptr*);" & _ ; to-do
+		"Skip hresult(ulong);" & _
+		"Reset hresult();" & _
+		"Clone hresult(ptr*);" & _
+		"GetCount hresult(ulong_ptr*);"
 Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
 		"Next hresult(ulong;ptr*;ulong_ptr*);" & _ ; to-do
 		"Skip hresult(ulong);" & _
@@ -98,6 +105,7 @@ Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
 ;_BITS_BackgroundCopyJob_AddFileSet
 ;_BITS_BackgroundCopyJob_Cancel
 ;_BITS_BackgroundCopyJob_Complete
+;_BITS_BackgroundCopyJob_EnumFiles
 ;_BITS_BackgroundCopyJob_GetDescription
 ;_BITS_BackgroundCopyJob_GetDisplayName
 ;_BITS_BackgroundCopyJob_GetError
@@ -128,6 +136,10 @@ Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
 ;_BITS_BackgroundCopyManager_GetErrorDescription
 ;_BITS_BackgroundCopyManager_GetJob
 ;_BITS_Connect
+;_BITS_EnumBackgroundCopyFiles_Clone
+;_BITS_EnumBackgroundCopyFiles_GetCount
+;_BITS_EnumBackgroundCopyFiles_Reset
+;_BITS_EnumBackgroundCopyFiles_Skip
 ;_BITS_EnumBackgroundCopyJobs_Clone
 ;_BITS_EnumBackgroundCopyJobs_GetCount
 ;_BITS_EnumBackgroundCopyJobs_Reset
@@ -263,6 +275,16 @@ Func _BITS_BackgroundCopyJob_Complete(Const ByRef $oBackgroundCopyJob)
 	$oBackgroundCopyJob.Complete()
 EndFunc   ;==>_BITS_BackgroundCopyJob_Complete
 
+Func _BITS_BackgroundCopyJob_EnumFiles(Const ByRef $oBackgroundCopyJob)
+	Local $pEnumFiles = 0
+	Local $oEnumBackgroundCopyFiles = 0
+
+	$oBackgroundCopyJob.EnumFiles($pEnumFiles)
+	$oEnumBackgroundCopyFiles = ObjCreateInterface($pEnumFiles, $__BITSCONSTANT_sIID_IEnumBackgroundCopyFiles, $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles)
+
+	Return $oEnumBackgroundCopyFiles
+EndFunc
+
 Func _BITS_BackgroundCopyJob_GetDescription(Const ByRef $oBackgroundCopyJob)
 	Local $sVal = ""
 
@@ -385,7 +407,6 @@ EndFunc   ;==>_BITS_BackgroundCopyJob_GetState
 Func _BITS_BackgroundCopyJob_GetTimes(Const ByRef $oBackgroundCopyJob)
 	Local $tBG_JOB_TIMES = 0
 	Local $tFILETIME = 0
-	Local $tStructData = 0
 	Local $tSYSTEMTIME = 0
 	Local $aTimes[3] = ["", "", ""]
 
@@ -521,6 +542,32 @@ Func _BITS_Connect()
 
 	Return $oBackgroundCopyManager
 EndFunc   ;==>_BITS_Connect
+
+Func _BITS_EnumBackgroundCopyFiles_Clone(Const ByRef $oEnumBackgroundCopyFiles)
+	Local $pEnumFilesClone = 0
+	Local $oEnumBackgroundCopyFilesClone = 0
+
+	$oEnumBackgroundCopyFiles.Clone($pEnumFilesClone)
+	$oEnumBackgroundCopyFilesClone = ObjCreateInterface($pEnumFilesClone, $__BITSCONSTANT_sIID_IEnumBackgroundCopyFiles, $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles)
+
+	Return $oEnumBackgroundCopyFilesClone
+EndFunc   ;==>_BITS_EnumBackgroundCopyFiles_Clone
+
+Func _BITS_EnumBackgroundCopyFiles_GetCount(Const ByRef $oEnumBackgroundCopyFiles)
+	Local $iCount = 0
+
+	$oEnumBackgroundCopyFiles.GetCount($iCount)
+
+	Return $iCount
+EndFunc   ;==>_BITS_EnumBackgroundCopyFiles_GetCount
+
+Func _BITS_EnumBackgroundCopyFiles_Reset(Const ByRef $oEnumBackgroundCopyFiles)
+	$oEnumBackgroundCopyFiles.Reset()
+EndFunc   ;==>_BITS_EnumBackgroundCopyFiles_Reset
+
+Func _BITS_EnumBackgroundCopyFiles_Skip(Const ByRef $oEnumBackgroundCopyFiles, Const ByRef $iCelt)
+	$oEnumBackgroundCopyFiles.Skip($iCelt)
+EndFunc   ;==>_BITS_EnumBackgroundCopyFiles_Skip
 
 Func _BITS_EnumBackgroundCopyJobs_Clone(Const ByRef $oEnumBackgroundCopyJobs)
 	Local $pEnumJobsClone = 0
