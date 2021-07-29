@@ -25,6 +25,7 @@ Global Const $__BITSCONSTANT_sIID_IBackgroundCopyError = "{19C613A0-FCB8-4F28-81
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyFile = "{01B7BD23-FB88-4A77-8490-5891D3E4653A}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyJob = "{37668D37-507E-4160-9316-26306D150B12}"
 Global Const $__BITSCONSTANT_sIID_IBackgroundCopyManager = "{5CE34C0D-0DC9-4C1F-897C-DAA1B78CEE7C}"
+Global Const $__BITSCONSTANT_sIID_IEnumBackgroundCopyJobs = "{1AF4F612-3B71-466F-8F58-7B6F73AC57AD}"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyError = _
 		"GetError hresult(int_ptr*;hresult*);" & _
 		"GetFile hresult(ptr*);" & _
@@ -71,8 +72,14 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 		"CreateJob hresult(wstr;int;clsid*;ptr*);" & _
 		"GetJob hresult(clsid;ptr*);" & _
-		"EnumJobs hresult(dword;ptr*);" & _ ; to-do
+		"EnumJobs hresult(dword;ptr*);" & _
 		"GetErrorDescription hresult(hresult;dword;wstr*);"
+Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
+		"Next hresult(ulong;ptr*;ulong_ptr*);" & _ ; to-do
+		"Skip hresult(ulong);" & _
+		"Reset hresult();" & _
+		"Clone hresult(ptr*);" & _
+		"GetCount hresult(ulong_ptr*);"
 ; ===============================================================================================================================
 
 ; #CURRENT# =====================================================================================================================
@@ -117,9 +124,14 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 ;_BITS_BackgroundCopyJob_Suspend
 ;_BITS_BackgroundCopyJob_TakeOwnership
 ;_BITS_BackgroundCopyManager_CreateJob
+;_BITS_BackgroundCopyManager_EnumJobs
 ;_BITS_BackgroundCopyManager_GetErrorDescription
 ;_BITS_BackgroundCopyManager_GetJob
 ;_BITS_Connect
+;_BITS_EnumBackgroundCopyJobs_Clone
+;_BITS_EnumBackgroundCopyJobs_GetCount
+;_BITS_EnumBackgroundCopyJobs_Reset
+;_BITS_EnumBackgroundCopyJobs_Skip
 ; ===============================================================================================================================
 
 ; #INTERNAL_USE_ONLY# ===========================================================================================================
@@ -458,6 +470,16 @@ Func _BITS_BackgroundCopyManager_CreateJob(Const ByRef $oBackgroundCopyManager, 
 	Return $oBackgroundCopyJob
 EndFunc   ;==>_BITS_BackgroundCopyManager_CreateJob
 
+Func _BITS_BackgroundCopyManager_EnumJobs(Const ByRef $oBackgroundCopyManager, Const ByRef $iFlags)
+	Local $pEnumJobs = 0
+	Local $oEnumBackgroundCopyJobs = 0
+
+	$oBackgroundCopyManager.EnumJobs($iFlags, $pEnumJobs)
+	$oEnumBackgroundCopyJobs = ObjCreateInterface($pEnumJobs, $__BITSCONSTANT_sIID_IEnumBackgroundCopyJobs, $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs)
+
+	Return $oEnumBackgroundCopyJobs
+EndFunc   ;==>_BITS_BackgroundCopyManager_EnumJobs
+
 Func _BITS_BackgroundCopyManager_GetErrorDescription(Const ByRef $oBackgroundCopyManager, Const ByRef $iHresult, Const ByRef $iLanguageId)
 	Local $sErrorDescription = ""
 
@@ -499,3 +521,29 @@ Func _BITS_Connect()
 
 	Return $oBackgroundCopyManager
 EndFunc   ;==>_BITS_Connect
+
+Func _BITS_EnumBackgroundCopyJobs_Clone(Const ByRef $oEnumBackgroundCopyJobs)
+	Local $pEnumJobsClone = 0
+	Local $oEnumBackgroundCopyJobsClone = 0
+
+	$oEnumBackgroundCopyJobs.Clone($pEnumJobsClone)
+	$oEnumBackgroundCopyJobsClone = ObjCreateInterface($pEnumJobsClone, $__BITSCONSTANT_sIID_IEnumBackgroundCopyJobs, $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs)
+
+	Return $oEnumBackgroundCopyJobsClone
+EndFunc   ;==>_BITS_EnumBackgroundCopyJobs_Clone
+
+Func _BITS_EnumBackgroundCopyJobs_GetCount(Const ByRef $oEnumBackgroundCopyJobs)
+	Local $iCount = 0
+
+	$oEnumBackgroundCopyJobs.GetCount($iCount)
+
+	Return $iCount
+EndFunc   ;==>_BITS_EnumBackgroundCopyJobs_GetCount
+
+Func _BITS_EnumBackgroundCopyJobs_Reset(Const ByRef $oEnumBackgroundCopyJobs)
+	$oEnumBackgroundCopyJobs.Reset()
+EndFunc   ;==>_BITS_EnumBackgroundCopyJobs_Reset
+
+Func _BITS_EnumBackgroundCopyJobs_Skip(Const ByRef $oEnumBackgroundCopyJobs, Const ByRef $iCelt)
+	$oEnumBackgroundCopyJobs.Skip($iCelt)
+EndFunc   ;==>_BITS_EnumBackgroundCopyJobs_Skip
