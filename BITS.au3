@@ -67,7 +67,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"SetNoProgressTimeout hresult(ulong);" & _
 		"GetNoProgressTimeout hresult(ulong_ptr*);" & _
 		"GetErrorCount hresult(ulong_ptr*);" & _
-		"SetProxySettings hresult(int;ptr*;ptr*);" & _
+		"SetProxySettings hresult(int;struct*;struct*);" & _
 		"GetProxySettings hresult(int_ptr*;wstr*;wstr*);" & _
 		"TakeOwnership hresult();"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
@@ -283,7 +283,7 @@ Func _BITS_BackgroundCopyJob_EnumFiles(Const ByRef $oBackgroundCopyJob)
 	$oEnumBackgroundCopyFiles = ObjCreateInterface($pEnumFiles, $__BITSCONSTANT_sIID_IEnumBackgroundCopyFiles, $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles)
 
 	Return $oEnumBackgroundCopyFiles
-EndFunc
+EndFunc   ;==>_BITS_BackgroundCopyJob_EnumFiles
 
 Func _BITS_BackgroundCopyJob_GetDescription(Const ByRef $oBackgroundCopyJob)
 	Local $sVal = ""
@@ -475,7 +475,7 @@ Func _BITS_BackgroundCopyJob_SetProxySettings(Const ByRef $oBackgroundCopyJob, C
 	$tPROXYBYPASSLIST = DllStructCreate("wchar[" & StringLen($sProxyBypassList) + 1 & "];")
 	DllStructSetData($tPROXYLIST, 1, $sProxyList)
 	DllStructSetData($tPROXYBYPASSLIST, 1, $sProxyBypassList)
-	ConsoleWrite("SetProxySettings = " & $oBackgroundCopyJob.SetProxySettings($iProxyUsage, $tPROXYLIST, $tPROXYBYPASSLIST) & @CRLF)
+	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, $tPROXYLIST, $tPROXYBYPASSLIST)
 	$tPROXYLIST = 0
 	$tPROXYBYPASSLIST = 0
 EndFunc   ;==>_BITS_BackgroundCopyJob_SetProxySettings
