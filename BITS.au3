@@ -67,7 +67,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyJob = _
 		"SetNoProgressTimeout hresult(ulong);" & _
 		"GetNoProgressTimeout hresult(ulong_ptr*);" & _
 		"GetErrorCount hresult(ulong_ptr*);" & _
-		"SetProxySettings hresult(int;wstr*;wstr*);" & _ ; to-do
+		"SetProxySettings hresult(int;struct*;struct*);" & _
 		"GetProxySettings hresult(int_ptr*;wstr*;wstr*);" & _
 		"TakeOwnership hresult();"
 Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
@@ -283,7 +283,7 @@ Func _BITS_BackgroundCopyJob_EnumFiles(Const ByRef $oBackgroundCopyJob)
 	$oEnumBackgroundCopyFiles = ObjCreateInterface($pEnumFiles, $__BITSCONSTANT_sIID_IEnumBackgroundCopyFiles, $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles)
 
 	Return $oEnumBackgroundCopyFiles
-EndFunc
+EndFunc   ;==>_BITS_BackgroundCopyJob_EnumFiles
 
 Func _BITS_BackgroundCopyJob_GetDescription(Const ByRef $oBackgroundCopyJob)
 	Local $sVal = ""
@@ -468,8 +468,16 @@ Func _BITS_BackgroundCopyJob_SetPriority(Const ByRef $oBackgroundCopyJob, Const 
 EndFunc   ;==>_BITS_BackgroundCopyJob_SetPriority
 
 Func _BITS_BackgroundCopyJob_SetProxySettings(Const ByRef $oBackgroundCopyJob, Const ByRef $iProxyUsage, Const ByRef $sProxyList, Const ByRef $sProxyBypassList)
-;~ 	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, $sProxyList, $sProxyBypassList)
-	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, DllStructCreate("wchar[" & StringLen($sProxyList) + 1 & "];"), DllStructCreate("wchar[" & StringLen($sProxyBypassList) + 1 & "];"))
+	Local $tPROXYLIST = 0
+	Local $tPROXYBYPASSLIST = 0
+
+	$tPROXYLIST = DllStructCreate("wchar[" & StringLen($sProxyList) + 1 & "];")
+	$tPROXYBYPASSLIST = DllStructCreate("wchar[" & StringLen($sProxyBypassList) + 1 & "];")
+	DllStructSetData($tPROXYLIST, 1, $sProxyList)
+	DllStructSetData($tPROXYBYPASSLIST, 1, $sProxyBypassList)
+	$oBackgroundCopyJob.SetProxySettings($iProxyUsage, $tPROXYLIST, $tPROXYBYPASSLIST)
+	$tPROXYLIST = 0
+	$tPROXYBYPASSLIST = 0
 EndFunc   ;==>_BITS_BackgroundCopyJob_SetProxySettings
 
 Func _BITS_BackgroundCopyJob_Suspend(Const ByRef $oBackgroundCopyJob)
