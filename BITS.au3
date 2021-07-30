@@ -76,7 +76,7 @@ Global Const $__BITSCONSTANT_sTagIBackgroundCopyManager = _
 		"EnumJobs hresult(dword;ptr*);" & _
 		"GetErrorDescription hresult(hresult;dword;wstr*);"
 Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles = _
-		"Next hresult(ulong;ptr*;ulong_ptr*);" & _ ; to-do
+		"Next hresult(ulong;struct*;ulong_ptr*);" & _
 		"Skip hresult(ulong);" & _
 		"Reset hresult();" & _
 		"Clone hresult(ptr*);" & _
@@ -138,6 +138,7 @@ Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
 ;_BITS_Connect
 ;_BITS_EnumBackgroundCopyFiles_Clone
 ;_BITS_EnumBackgroundCopyFiles_GetCount
+;_BITS_EnumBackgroundCopyFiles_Next
 ;_BITS_EnumBackgroundCopyFiles_Reset
 ;_BITS_EnumBackgroundCopyFiles_Skip
 ;_BITS_EnumBackgroundCopyJobs_Clone
@@ -568,6 +569,30 @@ Func _BITS_EnumBackgroundCopyFiles_GetCount(Const ByRef $oEnumBackgroundCopyFile
 
 	Return $iCount
 EndFunc   ;==>_BITS_EnumBackgroundCopyFiles_GetCount
+
+Func _BITS_EnumBackgroundCopyFiles_Next(Const ByRef $oEnumBackgroundCopyFiles, Const ByRef $iCelt)
+	Local $tagFILES = ""
+	Local $tFILES = 0
+	Local $iCeltFetched = 0
+	Local $aFiles[1] = [0]
+	Local $pFile = 0
+	Local $oBackgroundCopyFile = 0
+
+	For $i = 1 To $iCelt
+		$tagFILES &= "ptr;"
+	Next
+	$tFILES = DllStructCreate($tagFILES)
+	$oEnumBackgroundCopyFiles.Next($iCelt, $tFILES, $iCeltFetched)
+	ReDim $aFiles[$iCeltFetched + 1]
+	$aFiles[0] = $iCeltFetched
+	For $i = 1 To $iCeltFetched
+		$pFile = DllStructGetData($tFILES, $i)
+		$aFiles[$i] = ObjCreateInterface($pFile, $__BITSCONSTANT_sIID_IBackgroundCopyFile, $__BITSCONSTANT_sTagIBackgroundCopyFile)
+	Next
+	$tFILES = 0
+
+	Return $aFiles
+EndFunc   ;==>_BITS_EnumBackgroundCopyFiles_Next
 
 Func _BITS_EnumBackgroundCopyFiles_Reset(Const ByRef $oEnumBackgroundCopyFiles)
 	$oEnumBackgroundCopyFiles.Reset()
