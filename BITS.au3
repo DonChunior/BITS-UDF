@@ -82,7 +82,7 @@ Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyFiles = _
 		"Clone hresult(ptr*);" & _
 		"GetCount hresult(ulong_ptr*);"
 Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
-		"Next hresult(ulong;ptr*;ulong_ptr*);" & _ ; to-do
+		"Next hresult(ulong;ptr*;ulong_ptr*);" & _
 		"Skip hresult(ulong);" & _
 		"Reset hresult();" & _
 		"Clone hresult(ptr*);" & _
@@ -143,6 +143,7 @@ Global Const $__BITSCONSTANT_sTagIEnumBackgroundCopyJobs = _
 ;_BITS_EnumBackgroundCopyFiles_Skip
 ;_BITS_EnumBackgroundCopyJobs_Clone
 ;_BITS_EnumBackgroundCopyJobs_GetCount
+;_BITS_EnumBackgroundCopyJobs_Next
 ;_BITS_EnumBackgroundCopyJobs_Reset
 ;_BITS_EnumBackgroundCopyJobs_Skip
 ; ===============================================================================================================================
@@ -576,7 +577,6 @@ Func _BITS_EnumBackgroundCopyFiles_Next(Const ByRef $oEnumBackgroundCopyFiles, C
 	Local $iCeltFetched = 0
 	Local $aFiles[1] = [0]
 	Local $pFile = 0
-	Local $oBackgroundCopyFile = 0
 
 	For $i = 1 To $iCelt
 		$tagFILES &= "ptr;"
@@ -619,6 +619,29 @@ Func _BITS_EnumBackgroundCopyJobs_GetCount(Const ByRef $oEnumBackgroundCopyJobs)
 
 	Return $iCount
 EndFunc   ;==>_BITS_EnumBackgroundCopyJobs_GetCount
+
+Func _BITS_EnumBackgroundCopyJobs_Next(Const ByRef $oEnumBackgroundCopyJobs, Const ByRef $iCelt)
+	Local $tagJOBS = ""
+	Local $tJOBS = 0
+	Local $iCeltFetched = 0
+	Local $aJobs[1] = [0]
+	Local $pJob = 0
+
+	For $i = 1 To $iCelt
+		$tagJOBS &= "ptr;"
+	Next
+	$tJOBS = DllStructCreate($tagJOBS)
+	$oEnumBackgroundCopyJobs.Next($iCelt, $tJOBS, $iCeltFetched)
+	ReDim $aJobs[$iCeltFetched + 1]
+	$aJobs[0] = $iCeltFetched
+	For $i = 1 To $iCeltFetched
+		$pJob = DllStructGetData($tJOBS, $i)
+		$aJobs[$i] = ObjCreateInterface($pJob, $__BITSCONSTANT_sIID_IBackgroundCopyFile, $__BITSCONSTANT_sTagIBackgroundCopyFile)
+	Next
+	$tJOBS = 0
+
+	Return $aJobs
+EndFunc   ;==>_BITS_EnumBackgroundCopyJobs_Next
 
 Func _BITS_EnumBackgroundCopyJobs_Reset(Const ByRef $oEnumBackgroundCopyJobs)
 	$oEnumBackgroundCopyJobs.Reset()
