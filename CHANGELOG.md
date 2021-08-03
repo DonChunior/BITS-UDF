@@ -6,7 +6,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [1.0.0-alpha]
 ### Added
-- CHANGELOG and README created.
+- CHANGELOG, LICENSE and README created.
 - Function _BITS_Connect created to establish a connection with BITS.
 - Implementation of the IBackgroundCopyManager interface:
   - _BITS_BackgroundCopyManager_CreateJob
