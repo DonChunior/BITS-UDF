@@ -6,7 +6,6 @@
 
 #include "BITSConstants.au3"
 #include <StructureConstants.au3>
-#include <Date.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: BITS (Background Intelligent Transfer Service)
@@ -408,26 +407,15 @@ EndFunc   ;==>_BITS_BackgroundCopyJob_GetState
 
 Func _BITS_BackgroundCopyJob_GetTimes(Const ByRef $oBackgroundCopyJob)
 	Local $tBG_JOB_TIMES = 0
-	Local $tFILETIME = 0
-	Local $tSYSTEMTIME = 0
-	Local $aTimes[3] = ["", "", ""]
+	Local $aTimes[3] = [0, 0, 0]
 
 	$tBG_JOB_TIMES = DllStructCreate($tagBG_JOB_TIMES)
 	$oBackgroundCopyJob.GetTimes($tBG_JOB_TIMES)
-	$tFILETIME = DllStructCreate($tagFILETIME)
-	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 1))
-	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 2))
-	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	$aTimes[0] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
-	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 3))
-	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 4))
-	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	$aTimes[1] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
-	DllStructSetData($tFILETIME, 1, DllStructGetData($tBG_JOB_TIMES, 5))
-	DllStructSetData($tFILETIME, 2, DllStructGetData($tBG_JOB_TIMES, 6))
-	$tSYSTEMTIME = _Date_Time_FileTimeToSystemTime($tFILETIME)
-	$aTimes[2] = _Date_Time_SystemTimeToDateTimeStr($tSYSTEMTIME, 1)
-	$tFILETIME = 0
+	For $i = 0 To UBound($aTimes) - 1
+		$aTimes[$i] = DllStructCreate($tagFILETIME)
+		DllStructSetData($aTimes[$i], 1, DllStructGetData($tBG_JOB_TIMES, 2 * $i + 1))
+		DllStructSetData($aTimes[$i], 2, DllStructGetData($tBG_JOB_TIMES, 2 * $i + 2))
+	Next
 	$tBG_JOB_TIMES = 0
 
 	Return $aTimes
