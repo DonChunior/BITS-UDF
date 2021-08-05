@@ -517,6 +517,20 @@ Func _BITS_BackgroundCopyManager_GetJob(Const ByRef $oBackgroundCopyManager, Con
 	Return $oBackgroundCopyJob
 EndFunc   ;==>_BITS_BackgroundCopyManager_GetJob
 
+; #FUNCTION# ====================================================================================================================
+; Name ..........: _BITS_Connect
+; Description ...: Connects to the BITS service.
+; Syntax ........: _BITS_Connect()
+; Parameters ....: None
+; Return values .: Success - A BackgroundCopyManager object.
+;                  Failure - 0 and sets the @error flag to non-zero.
+; Author ........: Domenic Laritz
+; Modified ......:
+; Remarks .......:
+; Related .......:
+; Link ..........:
+; Example .......: No
+; ===============================================================================================================================
 Func _BITS_Connect()
 	Local $asBackgroundCopyManager_CLSIDs[] = [ _
 			"{5FD42AD5-C04E-4D36-ADC7-E08FF15737AD}", _ ; BITS 10.3
@@ -537,6 +551,7 @@ Func _BITS_Connect()
 		$oBackgroundCopyManager = ObjCreateInterface($sBackgroundCopyManager_CLSID, $__BITSCONSTANT_sIID_IBackgroundCopyManager, $__BITSCONSTANT_sTagIBackgroundCopyManager)
 		If Not @error Then ExitLoop
 	Next
+	If @error Then Return SetError(@error, 0, 0)
 
 	Return $oBackgroundCopyManager
 EndFunc   ;==>_BITS_Connect
