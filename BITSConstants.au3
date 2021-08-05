@@ -18,6 +18,11 @@
 
 ; #CONSTANTS# ===================================================================================================================
 
+Global Enum _
+		$_BITS_ERROR_NOT_CONNECTED = 1, _ ; BITS is not connected
+		$_BITS_ERROR_INVALIDARG, _ ; One or more arguments are invalid
+		$_BITS_ERROR_OBJ_FUNCTION_FAIL ; Object function failed
+
 ; BG_ERROR_CONTEXT enumeration (https://docs.microsoft.com/en-us/windows/win32/api/bits/ne-bits-bg_error_context)
 Global Enum _
 		$BG_ERROR_CONTEXT_NONE, _
@@ -29,6 +34,10 @@ Global Enum _
 		$BG_ERROR_CONTEXT_GENERAL_TRANSPORT, _
 		$BG_ERROR_CONTEXT_REMOTE_APPLICATION, _
 		$BG_ERROR_CONTEXT_SERVER_CERTIFICATE_CALLBACK
+
+; BITS Return Values (https://docs.microsoft.com/en-us/windows/win32/bits/bits-return-values)
+Global Const $BG_E_TOO_MANY_JOBS_PER_USER = 0x80200049
+Global Const $BG_E_TOO_MANY_JOBS_PER_MACHINE = 0x80200050
 
 ; BG_JOB_ENUM_ALL_USERS flag (https://docs.microsoft.com/en-us/windows/win32/api/bits/nf-bits-ibackgroundcopymanager-enumjobs)
 Global Const $BG_JOB_ENUM_ALL_USERS = 0x0001
