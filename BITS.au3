@@ -6,6 +6,7 @@
 
 #include "BITSConstants.au3"
 #include <StructureConstants.au3>
+#include <WinAPIConstants.au3>
 
 ; #INDEX# =======================================================================================================================
 ; Title .........: BITS (Background Intelligent Transfer Service)
@@ -17,6 +18,10 @@
 ; Description ...: Download or upload files using Background Intelligent Transfer Service.
 ; Links .........: https://docs.microsoft.com/en-us/windows/win32/bits/background-intelligent-transfer-service-portal
 ; Dll ...........:
+; ===============================================================================================================================
+
+; #VARIABLES# ===================================================================================================================
+Global $__g_oBackgroundCopyManager = 0
 ; ===============================================================================================================================
 
 ; #CONSTANTS# ===================================================================================================================
@@ -478,15 +483,25 @@ Func _BITS_BackgroundCopyJob_TakeOwnership(Const ByRef $oBackgroundCopyJob)
 	$oBackgroundCopyJob.TakeOwnership()
 EndFunc   ;==>_BITS_BackgroundCopyJob_TakeOwnership
 
-Func _BITS_BackgroundCopyManager_CreateJob(Const ByRef $oBackgroundCopyManager, Const ByRef $sDisplayName, Const ByRef $iType)
-	Local $sJobId = ""
+Func _BITS_BackgroundCopyManager_CreateJob(Const ByRef $sDisplayName, Const $iType = $BG_JOB_TYPE_DOWNLOAD)
+	Local $aBackgroundCopyJob[2] = [0, ""]
 	Local $pJob = 0
-	Local $oBackgroundCopyJob = 0
+	Local $hResult = 0
 
-	$oBackgroundCopyManager.CreateJob($sDisplayName, $iType, $sJobId, $pJob)
-	$oBackgroundCopyJob = ObjCreateInterface($pJob, $__BITSCONSTANT_sIID_IBackgroundCopyJob, $__BITSCONSTANT_sTagIBackgroundCopyJob)
+	If Not IsObj($__g_oBackgroundCopyManager) Then
+		Return SetError($_BITS_ERROR_NOT_CONNECTED, 0, 0)
+	EndIf
+	If Not IsString($sDisplayName) Or Not IsInt($iType) Then
+		Return SetError($_BITS_ERROR_INVALIDARG, 0, 0)
+	EndIf
 
-	Return $oBackgroundCopyJob
+	$hResult = $__g_oBackgroundCopyManager.CreateJob($sDisplayName, $iType, $aBackgroundCopyJob[1], $pJob)
+	If $hResult <> $S_OK Then
+		Return SetError($_BITS_ERROR_OBJ_FUNCTION_FAIL, $hResult, _BITS_BackgroundCopyManager_GetErrorDescription($hResult))
+	EndIf
+	$aBackgroundCopyJob[0] = ObjCreateInterface($pJob, $__BITSCONSTANT_sIID_IBackgroundCopyJob, $__BITSCONSTANT_sTagIBackgroundCopyJob)
+
+	Return $aBackgroundCopyJob
 EndFunc   ;==>_BITS_BackgroundCopyManager_CreateJob
 
 Func _BITS_BackgroundCopyManager_EnumJobs(Const ByRef $oBackgroundCopyManager, Const ByRef $iFlags)
@@ -499,10 +514,10 @@ Func _BITS_BackgroundCopyManager_EnumJobs(Const ByRef $oBackgroundCopyManager, C
 	Return $oEnumBackgroundCopyJobs
 EndFunc   ;==>_BITS_BackgroundCopyManager_EnumJobs
 
-Func _BITS_BackgroundCopyManager_GetErrorDescription(Const ByRef $oBackgroundCopyManager, Const ByRef $iHresult, Const ByRef $iLanguageId)
+Func _BITS_BackgroundCopyManager_GetErrorDescription(Const ByRef $iHresult, Const $iLanguageId = 0)
 	Local $sErrorDescription = ""
 
-	$oBackgroundCopyManager.GetErrorDescription($iHresult, $iLanguageId, $sErrorDescription)
+	$__g_oBackgroundCopyManager.GetErrorDescription($iHresult, $iLanguageId, $sErrorDescription)
 
 	Return $sErrorDescription
 EndFunc   ;==>_BITS_BackgroundCopyManager_GetErrorDescription
@@ -522,8 +537,8 @@ EndFunc   ;==>_BITS_BackgroundCopyManager_GetJob
 ; Description ...: Connects to the BITS service.
 ; Syntax ........: _BITS_Connect()
 ; Parameters ....: None
-; Return values .: Success - A BackgroundCopyManager object.
-;                  Failure - 0 and sets the @error flag to non-zero.
+; Return values .: Success - None.
+;                  Failure - Sets the @error flag to non-zero.
 ; Author ........: Domenic Laritz
 ; Modified ......:
 ; Remarks .......:
@@ -545,15 +560,13 @@ Func _BITS_Connect()
 			"{F087771F-D74F-4C1A-BB8A-E16ACA9124EA}", _ ; BITS 1.5
 			"{4991D34B-80A1-4291-83B6-3328366B9097}" _ ; BITS 1.0
 			]
-	Local $oBackgroundCopyManager = 0
 
 	For $sBackgroundCopyManager_CLSID In $asBackgroundCopyManager_CLSIDs
-		$oBackgroundCopyManager = ObjCreateInterface($sBackgroundCopyManager_CLSID, $__BITSCONSTANT_sIID_IBackgroundCopyManager, $__BITSCONSTANT_sTagIBackgroundCopyManager)
-		If Not @error Then ExitLoop
+		$__g_oBackgroundCopyManager = ObjCreateInterface($sBackgroundCopyManager_CLSID, $__BITSCONSTANT_sIID_IBackgroundCopyManager, $__BITSCONSTANT_sTagIBackgroundCopyManager)
+		If Not @error Then Return
 	Next
-	If @error Then Return SetError(@error, 0, 0)
 
-	Return $oBackgroundCopyManager
+	Return SetError(@error)
 EndFunc   ;==>_BITS_Connect
 
 Func _BITS_EnumBackgroundCopyFiles_Clone(Const ByRef $oEnumBackgroundCopyFiles)
